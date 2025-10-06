@@ -1,6 +1,6 @@
 # QLiteBot
 
-![License](https://img.shields.io/badge/license-Non--Commercial-blue.svg)
+![License](https://img.shields.io/badge/license-Non--Commercial-purple.svg)
 ![Python Version](https://img.shields.io/badge/python-3.11-blue)
 
 一个基于[NcatBot](https://github.com/liyihao1110/ncatbot)开发的轻量化新手友好qq bot项目
@@ -87,5 +87,9 @@ python main_response.py
 你可以在消息中加入图片，bot的vlm（视觉模型）将会识别图片消息并进行响应
 
 bot可以收到带有引用的消息，可以引用一条普通消息、带图片的消息或一整段合并转发的聊天记录
+
+程序会每十分钟检查一次历史消息记录并删除多余的旧聊天记录，保留300条
+
+bot上线前所有的聊天记录都不会在bot的聊天历史中，对所有不在聊天历史中的消息进行的引用bot都不会收到，默认按照普通消息处理
 
 正如简介所说，bot可以在部署的主机上运行python代码实现一些功能，比如获取天气、时间，你可以主动要求它这样做，不过安全性无法保证

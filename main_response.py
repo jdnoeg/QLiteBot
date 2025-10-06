@@ -20,6 +20,7 @@ _log = get_log()
 user = {}
 member_info_got = False
 chat_history = {}
+chat_history_manage = []
 
 
 def member_info_update():
@@ -36,6 +37,25 @@ def member_info_update():
             new_members[j.card] = j.user_id
     user = new_members
     _log.info(f"已刷新群成员信息: {len(new_members) // 2} 名成员")
+
+
+def chat_history_manager():
+    """管理聊天记录，过长时删除旧记录"""
+    global chat_history, chat_history_manage
+
+    while True:
+        time.sleep(600)  # 十分钟一次清理
+        _log.info("开始定时清理历史消息")
+
+        if len(chat_history_manage) > 300:  # 保留最近300条记录
+            number_cleaned = len(chat_history_manage) - 300
+            for i in chat_history_manage[0:number_cleaned]:
+                del chat_history[i]
+            chat_history_manage = chat_history_manage[-300:]
+            _log.info(f"本次共清理{number_cleaned}条消息")
+        else:
+            _log.info("聊天历史不足300条，不执行清理")
+
 
 
 def send_to_group():
@@ -62,10 +82,20 @@ def send_to_group():
             pass
 
 
+@bot.notice_event()
+def new_group_member(notice: NoticeEvent):
+    """新成员进群更新名单"""
+    if notice.group_id == int(config.qq["group_id"]):
+        _log.info(notice)
+
+    if notice.notice_type == "group_increase":
+        member_info_update()
+
+
 @bot.group_event()
 def get_from_group(message: GroupMessage):
     '''从群聊获取消息'''
-    global heartbeat_queue, user, member_info_got, chat_history
+    global heartbeat_queue, user, member_info_got, chat_history, chat_history_manage
     if not member_info_got:
         member_info_update()
         member_info_got = True
@@ -73,11 +103,11 @@ def get_from_group(message: GroupMessage):
     if message.group_id == config.qq["group_id"]:
 
         _log.info(message)
-        _log.info(message.message.to_list())
+        # _log.info(message.message.to_list())
 
         message_iter = iter(message.message)
 
-        # 处理历史消息，放入历史消息字典
+        # 处理历史消息，放入历史消息字典和管理列表
         with input_lock:
             is_forward = False
             for i in message.message:
@@ -95,9 +125,11 @@ def get_from_group(message: GroupMessage):
                 # 处理正常消息
                 extracted_text, extracted_image = extract_message_info(message.message, user)
                 chat_history[message.message_id] = {"sender":user[int(message.sender.user_id)], "text":extracted_text, "image":extracted_image}
+            chat_history_manage.append(message.message_id)
+
 
         if {'type':"at", "data":{'qq':config.qq["bot_id"]}} in message.message.to_list():
-
+            """正式处理消息"""
             user_information = message.sender
             if user_information.card == '':
                 user_name = user_information.nickname
@@ -228,7 +260,7 @@ def send_to_llm():
                 broadcast_system.broadcast(message=text, tag="send_to_tts")
 
             broadcast_system.broadcast(message=code[0], tag="executer")
-            print("AI:", text)
+            print("Funggy:", text)
         except queue.Empty:
             pass
 
@@ -238,14 +270,15 @@ broadcast_system = BroadcastSystem()
 if __name__ == "__main__":
 
 
+    history_manager_thread = threading.Thread(target=chat_history_manager, daemon=True)
     send_to_group_thread = threading.Thread(target=send_to_group, daemon=True)
     llm_thread = threading.Thread(target=send_to_llm, daemon=True)
     code_thread = threading.Thread(target=execute_python_code, daemon=True)
 
 
+    history_manager_thread.start()
     send_to_group_thread.start()
     code_thread.start()
     llm_thread.start()
-
 
     bot.run(bt_uin=config.qq["bot_id"])
