@@ -228,7 +228,7 @@ def send_to_llm():
                 broadcast_system.broadcast(message=text, tag="send_to_tts")
 
             broadcast_system.broadcast(message=code[0], tag="executer")
-            print("Funggy:", text)
+            print("AI:", text)
         except queue.Empty:
             pass
 
@@ -246,5 +246,6 @@ if __name__ == "__main__":
     send_to_group_thread.start()
     code_thread.start()
     llm_thread.start()
+
 
     bot.run(bt_uin=config.qq["bot_id"])
