@@ -29,7 +29,7 @@ pydantic_core~=2.33.2
 psutil~=7.1.0
 qrcode~=8.2
 certifi~=2025.8.3
-ncatbot=4.2.3
+ncatbot==4.2.3
 packaging~=25.0
 tqdm~=4.67.1
 schedule~=1.2.2
@@ -40,3 +40,4 @@ annotated-types~=0.6.0
 charset-normalizer~=3.3.2
 
 pycparser~=2.23
+
