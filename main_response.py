@@ -6,7 +6,7 @@ from openai import OpenAI
 import sys
 import traceback
 from io import StringIO
-from ncatbot.core import BotClient, GroupMessage, MessageSegment, At, Text, MessageArray, GroupEvent
+from ncatbot.core import BotClient, GroupMessage, MessageSegment, At, Text, MessageArray, NoticeEvent
 from ncatbot.utils import get_log
 from tools import BroadcastSystem, extract_xml_content, extract_message_info
 from vlm import analyze_image
@@ -283,3 +283,4 @@ if __name__ == "__main__":
 
 
     bot.run(bt_uin=config.qq["bot_id"])
+
