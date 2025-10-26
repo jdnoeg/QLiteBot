@@ -39,7 +39,8 @@ qq = {
 
 vlm = {
     "model":"", # 在这里填写你的vlm的模型名称
-    "url":"", # 在这里填写你的vml模型名称
+    "url":"", # 在这里填写你的vml url
     "key":"" # 在这里填写你的vlm的API key
 
 }
+
